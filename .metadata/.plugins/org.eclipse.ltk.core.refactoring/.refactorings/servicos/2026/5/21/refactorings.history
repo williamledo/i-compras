@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;servicos/database/docker.compose.yml&apos; to &apos;docker-compose.yml&apos;" description="Rename resource &apos;docker.compose.yml&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="database/docker.compose.yml" name="docker-compose.yml" stamp="1779248628535" updateReferences="true"/>
+</session>
