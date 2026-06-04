@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.github.williamledo.icompras.pedidos.controller.dto.NovoPedidoDTO;
 import io.github.williamledo.icompras.pedidos.controller.mapper.PedidoMapper;
+import io.github.williamledo.icompras.pedidos.exception.ValidationException;
+import io.github.williamledo.icompras.pedidos.model.ErroResposta;
 import io.github.williamledo.icompras.pedidos.service.PedidoService;
 import lombok.RequiredArgsConstructor;
 
@@ -22,11 +24,18 @@ public class PedidoController {
 	@PostMapping
 	public ResponseEntity<Object> criar(@RequestBody NovoPedidoDTO dto ) {
 
-		var pedido = mapper.map(dto);
-		
-		var novoPedido = service.criarPedido(pedido);
-		
-		return ResponseEntity.ok(novoPedido.getCodigo());
+		try {
+			
+			var pedido = mapper.map(dto);
+			
+			var novoPedido = service.criarPedido(pedido);
+			
+			return ResponseEntity.ok(novoPedido.getCodigo());
+			
+		} catch (ValidationException e) {
+			var erro = new ErroResposta("Erro validação", e.getField(), e.getMessage());
+			return ResponseEntity.badRequest().body(erro);
+		}
 		
 	}
 	
