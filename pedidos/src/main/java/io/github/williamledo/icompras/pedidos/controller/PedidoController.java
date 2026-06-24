@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.williamledo.icompras.pedidos.controller.dto.AdicaoNovoPagamentoDTO;
 import io.github.williamledo.icompras.pedidos.controller.dto.NovoPedidoDTO;
 import io.github.williamledo.icompras.pedidos.controller.mapper.PedidoMapper;
+import io.github.williamledo.icompras.pedidos.exception.ItemNaoEncontradoException;
 import io.github.williamledo.icompras.pedidos.exception.ValidationException;
 import io.github.williamledo.icompras.pedidos.model.ErroResposta;
 import io.github.williamledo.icompras.pedidos.service.PedidoService;
@@ -35,6 +37,22 @@ public class PedidoController {
 		} catch (ValidationException e) {
 			var erro = new ErroResposta("Erro validação", e.getField(), e.getMessage());
 			return ResponseEntity.badRequest().body(erro);
+		}
+		
+	}
+	
+	@PostMapping("/pagamentos")
+	public ResponseEntity<Object> adicionarNovoPagamento(
+			@RequestBody AdicaoNovoPagamentoDTO dto) {
+		
+		try {
+			service.adicionarNovoPagamento(dto.codigoPedido(), dto.dados(), dto.tipoPagamento());
+			return ResponseEntity.noContent().build();
+			
+		}catch(ItemNaoEncontradoException e) {
+			var erro = new ErroResposta("Item não encontrado", "codigoPedido", e.getMessage());
+			return ResponseEntity.badRequest().body(erro);
+			
 		}
 		
 	}

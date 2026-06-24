@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.williamledo.icompras.pedidos.client.ServicoBancarioClient;
+import io.github.williamledo.icompras.pedidos.exception.ItemNaoEncontradoException;
+import io.github.williamledo.icompras.pedidos.model.DadosPagamento;
 import io.github.williamledo.icompras.pedidos.model.Pedido;
+import io.github.williamledo.icompras.pedidos.model.TipoPagamento;
 import io.github.williamledo.icompras.pedidos.model.enums.StatusPedido;
 import io.github.williamledo.icompras.pedidos.repository.ItemPedidoRepository;
 import io.github.williamledo.icompras.pedidos.repository.PedidoRepository;
@@ -80,6 +83,35 @@ public class PedidoService {
 		
 		pedidoRepository.save(pedido);
 		
+	}
+	
+	@Transactional
+	public void adicionarNovoPagamento(Long codigoPedido, String dadosCartao, TipoPagamento tipoPagamento) {
+
+		var pedidoEncontrado = pedidoRepository.findById(codigoPedido);
+		
+		if (pedidoEncontrado.isEmpty()) {
+			throw new ItemNaoEncontradoException("Pedido não encontrado para o código informado");
+		}
+		
+		var pedido = pedidoEncontrado.get();
+		
+		DadosPagamento dadosPagamento = new DadosPagamento();
+		
+		dadosPagamento.setTipoPagamento(tipoPagamento);
+		dadosPagamento.setDados(dadosCartao);
+		
+		pedido.setDadosPagamento(dadosPagamento);
+		
+		pedido.setStatus(StatusPedido.REALIZADO);
+		pedido.setObservacoes("Novo pagamento realizado, aguardando novo processamento");
+		
+		
+		String novaChavePagamento = servicoBancarioClient.solicitarPagamento(pedido);
+		
+		pedido.setChavePagamento(novaChavePagamento);
+		
+		pedidoRepository.save(pedido);
 		
 	}
 	

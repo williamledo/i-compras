@@ -1,6 +1,7 @@
 package io.github.williamledo.icompras.pedidos.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ public class RecebimentoCallbackPagamentoController {
 
 	private final PedidoService pedidoService;
 	
+	@PostMapping
 	public ResponseEntity<Object> atualizarStatusPagamento(
 			@RequestBody RecebimentoCallbackPagamentoDTO body,
 			@RequestHeader(required=true, name="apiKey") String apiKey) {
