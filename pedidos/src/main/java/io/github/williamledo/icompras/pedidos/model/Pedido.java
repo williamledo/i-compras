@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import io.github.williamledo.icompras.pedidos.controller.dto.DadosPagamentoDTO;
+import io.github.williamledo.icompras.pedidos.client.representation.ClienteRepresentation;
 import io.github.williamledo.icompras.pedidos.model.enums.StatusPedido;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,5 +61,8 @@ public class Pedido {
 	
 	@OneToMany(mappedBy = "pedido")
 	private List<ItemPedido> itens;
+	
+	@Transient
+	private ClienteRepresentation dadosCliente;
 	
 }

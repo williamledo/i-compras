@@ -2,13 +2,18 @@ package io.github.williamledo.icompras.pedidos.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.github.williamledo.icompras.pedidos.client.ClientesClient;
+import io.github.williamledo.icompras.pedidos.client.ProdutosClient;
 import io.github.williamledo.icompras.pedidos.client.ServicoBancarioClient;
 import io.github.williamledo.icompras.pedidos.exception.ItemNaoEncontradoException;
 import io.github.williamledo.icompras.pedidos.model.DadosPagamento;
+import io.github.williamledo.icompras.pedidos.model.ItemPedido;
 import io.github.williamledo.icompras.pedidos.model.Pedido;
 import io.github.williamledo.icompras.pedidos.model.TipoPagamento;
 import io.github.williamledo.icompras.pedidos.model.enums.StatusPedido;
@@ -27,6 +32,8 @@ public class PedidoService {
 	private final ItemPedidoRepository itemPedidoRepository;
 	private final PedidoValidator pedidoValidator;
 	private final ServicoBancarioClient servicoBancarioClient;
+	private final ClientesClient apiClientes;
+	private final ProdutosClient apiProdutos;
 	
 	@Transactional
 	public Pedido criarPedido(Pedido pedido) {
@@ -76,6 +83,7 @@ public class PedidoService {
 		
 		if(sucesso) {
 			pedido.setStatus(StatusPedido.PAGO);
+			
 		}else {
 			pedido.setStatus(StatusPedido.ERRO_PAGAMENTO);
 			pedido.setObservacoes(observacoes);
@@ -114,5 +122,34 @@ public class PedidoService {
 		pedidoRepository.save(pedido);
 		
 	}
+	
+	public Optional<Pedido> carregarDadosCompletosPedido(Long codigo){
+		Optional<Pedido> pedido = pedidoRepository.findById(codigo);
+		
+		pedido.ifPresent(this::carregarDadosCliente);
+		pedido.ifPresent(this::carregarItensPedido);
+		
+		return pedido;
+	}
+	
+	private void carregarDadosCliente(Pedido pedido) {
+		Long codigoCliente = pedido.getCodigoCliente();
+		var response = apiClientes.obterDados(codigoCliente);
+		pedido.setDadosCliente(response.getBody());
+	}
+	
+	private void carregarItensPedido(Pedido pedido) {
+		List<ItemPedido> itens = itemPedidoRepository.findByPedido(pedido);
+		pedido.setItens(itens);
+		
+		pedido.getItens().forEach(this::carregarDadosProduto);
+	}
+	
+	private void carregarDadosProduto(ItemPedido item) {
+		Long codigoProduto = item.getCodigoProduto();
+		var response = apiProdutos.obterDados(codigoProduto);
+		item.setNome(response.getBody().getNome());
+	}
+	
 	
 }

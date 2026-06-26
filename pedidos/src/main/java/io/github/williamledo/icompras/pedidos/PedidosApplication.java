@@ -13,13 +13,13 @@ public class PedidosApplication {
 		SpringApplication.run(PedidosApplication.class, args);
 	}
 	
-	@Bean
-	public CommandLineRunner commandLineRunner(KafkaTemplate<String, String> template) {
-		
-		return args -> {
-			template.send("icompras.pedidos-pagos", "dados", "{ outra mensagem }");
-		};
-		
-	}
+//	@Bean
+//	public CommandLineRunner commandLineRunner(KafkaTemplate<String, String> template) {
+//		
+//		return args -> {
+//			template.send("icompras.pedidos-pagos", "dados", "{ outra mensagem }");
+//		};
+//		
+//	}
 
 }
