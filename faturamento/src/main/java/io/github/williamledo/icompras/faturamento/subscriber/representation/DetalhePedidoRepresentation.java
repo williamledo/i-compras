@@ -3,6 +3,9 @@ package io.github.williamledo.icompras.faturamento.subscriber.representation;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record DetalhePedidoRepresentation(
 		Long codigo,
 		Long codigoCliente,

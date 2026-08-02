@@ -5,7 +5,9 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Service;
 
 import io.github.williamledo.icompras.faturamento.config.MinioProps;
+import io.minio.BucketExistsArgs;
 import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.http.Method;
@@ -21,9 +23,14 @@ public class BucketService {
 	public void upload(BucketFile file) {
 		
 		try {
+			String bucketName = props.getBucketName();
+			boolean bucketExists = client.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+			if (!bucketExists) {
+				client.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+			}
 			
 			var object = PutObjectArgs.builder()
-					.bucket(props.getBucketName())
+					.bucket(bucketName)
 					.object(file.bucketName())
 					.stream(file.is(), file.size(), -1)
 					.contentType(file.type().toString())
